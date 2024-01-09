@@ -1,16 +1,8 @@
 # uconnect
 
-A new Flutter project.
+uConnect is an independent Flutter project to showcase design experience.
 
-## Getting Started
+uConnect is an app for connecting users that have, a product, service, knowledge, or tool. To those who are looking for one of these. 
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Developer Bio
+Hello, My name is Alexander McKee. I am passionate about creating applications that not only meet functionality requirements but also stand out for their design excellence. Committed to staying updated with the latest design trends and continuously improving skills to deliver top-notch user interfaces.
