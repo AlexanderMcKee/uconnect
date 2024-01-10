@@ -36,18 +36,18 @@ class LoginScreen1 extends StatelessWidget {
                       ),
                     ),
                     alignment: Alignment.center,
-                    padding: const EdgeInsets.only(top: 100.0, bottom: 100.0),
+                    padding: const EdgeInsets.only(top: 90.0, bottom: 100.0),
                     child: Column(
                       children: <Widget>[
                         Text(
-                          "DEMO",
+                          "uConnect",
                           style: TextStyle(
-                              fontSize: 50.0,
+                              fontSize: 40.0,
                               fontWeight: FontWeight.bold,
                               color: primaryColor),
                         ),
                         Text(
-                          "Login Screen 1",
+                          "Login Or Create an Account",
                           style: TextStyle(
                               fontSize: 20.0,
                               fontWeight: FontWeight.bold,

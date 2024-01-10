@@ -2,7 +2,7 @@ import 'package:english_words/english_words.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
-import 'package:uconnect/login_page.dart';
+import 'package:uconnect/animated_login.dart';
 
 void main() {
   runApp(MyApp());
@@ -64,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> {
         page = FavoritesPage();
         break;
       case 2:
-        page = LoginScreen1();
+        page = AnimatedLogin();
         break;
       default:
         throw UnimplementedError('no widget for $selectedIndex');
