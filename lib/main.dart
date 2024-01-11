@@ -1,212 +1,196 @@
-import 'package:english_words/english_words.dart';
+// Copyright 2020 The Flutter team. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:provider/provider.dart';
-import 'package:uconnect/animated_login.dart';
+import 'package:animated_login/animated_login.dart';
 
-void main() {
-  runApp(MyApp());
-}
+import 'tabs/news_tab.dart';
+import 'tabs/profile_tab.dart';
+import 'tabs/settings_tab.dart';
+import 'tabs/songs_tab.dart';
+import 'tabs/widgets.dart';
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+void main() => runApp(const MyAdaptingApp());
+
+class MyAdaptingApp extends StatelessWidget {
+  const MyAdaptingApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => MyAppState(),
-      child: MaterialApp(
-        title: 'Namer App',
-        theme: ThemeData(
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
-        ),
-        home: MyHomePage(),
+  Widget build(context) {
+    // Either Material or Cupertino widgets work in either Material or Cupertino
+    // Apps.
+    return MaterialApp(
+      title: 'uConnect',
+      theme: ThemeData(
+        // Use the green theme for Material widgets.
+        primarySwatch: Colors.green,
+        useMaterial3: true,
       ),
+      darkTheme: ThemeData.dark(),
+      builder: (context, child) {
+        return CupertinoTheme(
+          // Instead of letting Cupertino widgets auto-adapt to the Material
+          // theme (which is green), this app will use a different theme
+          // for Cupertino (which is blue by default).
+          data: const CupertinoThemeData(),
+          child: Material(child: child),
+        );
+      },
+      home: AnimatedLogin(),
     );
   }
 }
 
-class MyAppState extends ChangeNotifier {
-  var current = WordPair.random();
-  void getNext() {
-    current = WordPair.random();
-    notifyListeners();
-  }
+// Shows a different type of scaffold depending on the platform.
+//
+// This file has the most amount of non-sharable code since it behaves the most
+// differently between the platforms.
+//
+// These differences are also subjective and have more than one 'right' answer
+// depending on the app and content.
+class PlatformAdaptingHomePage extends StatefulWidget {
+  const PlatformAdaptingHomePage({super.key});
 
-  var favorites = <WordPair>[];
-  void toggleFavorite() {
-    if (favorites.contains(current)) {
-      favorites.remove(current);
-    } else {
-      favorites.add(current);
-    }
-    notifyListeners();
-  }
+  @override
+  State<PlatformAdaptingHomePage> createState() =>
+      _PlatformAdaptingHomePageState();
 }
 
-class MyHomePage extends StatefulWidget {
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
+class _PlatformAdaptingHomePageState extends State<PlatformAdaptingHomePage> {
+  // This app keeps a global key for the songs tab because it owns a bunch of
+  // data. Since changing platform re-parents those tabs into different
+  // scaffolds, keeping a global key to it lets this app keep that tab's data as
+  // the platform toggles.
+  //
+  // This isn't needed for apps that doesn't toggle platforms while running.
+  final songsTabKey = GlobalKey();
 
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  var selectedIndex = 0;
-
-  Widget build(BuildContext context) {
-    Widget page;
-    switch (selectedIndex) {
-      case 0:
-        page = GeneratorPage();
-        break;
-      case 1:
-        page = FavoritesPage();
-        break;
-      case 2:
-        page = AnimatedLogin();
-        break;
-      default:
-        throw UnimplementedError('no widget for $selectedIndex');
-    }
-
-    return LayoutBuilder(builder: (context, constraints) {
-      return Scaffold(
-        body: Row(
-          children: [
-            SafeArea(
-              child: NavigationRail(
-                extended: constraints.maxWidth >= 600,
-                destinations: const [
-                  NavigationRailDestination(
-                    icon: Icon(Icons.home),
-                    label: Text('Home'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.favorite),
-                    label: Text('Favorites'),
-                  ),
-                  NavigationRailDestination(
-                    icon: Icon(Icons.login),
-                    label: Text('Log In'),
-                  ),
-                ],
-                selectedIndex: selectedIndex,
-                onDestinationSelected: (value) {
-                  setState(() {
-                    selectedIndex = value;
-                  });
-                },
-              ),
-            ),
-            Expanded(
-              child: Container(
-                color: Theme.of(context).colorScheme.primaryContainer,
-                child: page,
-              ),
-            ),
-          ],
-        ),
-      );
-    });
+  // In Material, this app uses the hamburger menu paradigm and flatly lists
+  // all 4 possible tabs. This drawer is injected into the songs tab which is
+  // actually building the scaffold around the drawer.
+  Widget _buildAndroidHomePage(BuildContext context) {
+    return SongsTab(
+      key: songsTabKey,
+      androidDrawer: _AndroidDrawer(),
+    );
   }
-}
 
-class GeneratorPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-    var pair = appState.current;
-
-    IconData icon;
-    if (appState.favorites.contains(pair)) {
-      icon = Icons.favorite;
-    } else {
-      icon = Icons.favorite_border;
-    }
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          BigCard(pair: pair),
-          SizedBox(height: 10),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton.icon(
-                onPressed: () {
-                  appState.toggleFavorite();
-                },
-                icon: Icon(icon),
-                label: Text('Like'),
-              ),
-              SizedBox(width: 10),
-              ElevatedButton(
-                onPressed: () {
-                  appState.getNext();
-                },
-                child: Text('Next'),
-              ),
-            ],
+  // On iOS, the app uses a bottom tab paradigm. Here, each tab view sits inside
+  // a tab in the tab scaffold. The tab scaffold also positions the tab bar
+  // in a row at the bottom.
+  //
+  // An important thing to note is that while a Material Drawer can display a
+  // large number of items, a tab bar cannot. To illustrate one way of adjusting
+  // for this, the app folds its fourth tab (the settings page) into the
+  // third tab. This is a common pattern on iOS.
+  Widget _buildIosHomePage(BuildContext context) {
+    return CupertinoTabScaffold(
+      tabBar: CupertinoTabBar(
+        items: const [
+          BottomNavigationBarItem(
+            label: SongsTab.title,
+            icon: SongsTab.iosIcon,
+          ),
+          BottomNavigationBarItem(
+            label: NewsTab.title,
+            icon: NewsTab.iosIcon,
+          ),
+          BottomNavigationBarItem(
+            label: ProfileTab.title,
+            icon: ProfileTab.iosIcon,
           ),
         ],
       ),
+      tabBuilder: (context, index) {
+        assert(index <= 2 && index >= 0, 'Unexpected tab index: $index');
+        return switch (index) {
+          0 => CupertinoTabView(
+              defaultTitle: SongsTab.title,
+              builder: (context) => SongsTab(key: songsTabKey),
+            ),
+          1 => CupertinoTabView(
+              defaultTitle: NewsTab.title,
+              builder: (context) => const NewsTab(),
+            ),
+          2 => CupertinoTabView(
+              defaultTitle: ProfileTab.title,
+              builder: (context) => const ProfileTab(),
+            ),
+          _ => const SizedBox.shrink(),
+        };
+      },
+    );
+  }
+
+  @override
+  Widget build(context) {
+    return PlatformWidget(
+      androidBuilder: _buildAndroidHomePage,
+      iosBuilder: _buildIosHomePage,
     );
   }
 }
 
-class FavoritesPage extends StatelessWidget {
+class _AndroidDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var appState = context.watch<MyAppState>();
-
-    if (appState.favorites.isEmpty) {
-      return Center(
-        child: Text('No favorites yet.'),
-      );
-    }
-
-    return ListView(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(20),
-          child: Text('You have '
-              '${appState.favorites.length} favorites:'),
-        ),
-        for (var pair in appState.favorites)
-          ListTile(
-            leading: Icon(Icons.favorite),
-            title: Text(pair.asLowerCase),
+    return Drawer(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DrawerHeader(
+            decoration: const BoxDecoration(color: Colors.green),
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: Icon(
+                Icons.account_circle,
+                color: Colors.green.shade800,
+                size: 96,
+              ),
+            ),
           ),
-      ],
-    );
-  }
-}
-
-class BigCard extends StatelessWidget {
-  const BigCard({
-    super.key,
-    required this.pair,
-  });
-
-  final WordPair pair;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final style = theme.textTheme.displayMedium!.copyWith(
-      color: theme.colorScheme.onPrimary,
-    );
-
-    return Card(
-      color: theme.colorScheme.primary,
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Text(
-          "${pair.first} ${pair.second}",
-          style: style,
-        ),
+          ListTile(
+            leading: SongsTab.androidIcon,
+            title: const Text(SongsTab.title),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: NewsTab.androidIcon,
+            title: const Text(NewsTab.title),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push<void>(context,
+                  MaterialPageRoute(builder: (context) => const NewsTab()));
+            },
+          ),
+          ListTile(
+            leading: ProfileTab.androidIcon,
+            title: const Text(ProfileTab.title),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push<void>(context,
+                  MaterialPageRoute(builder: (context) => const ProfileTab()));
+            },
+          ),
+          // Long drawer contents are often segmented.
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Divider(),
+          ),
+          ListTile(
+            leading: SettingsTab.androidIcon,
+            title: const Text(SettingsTab.title),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push<void>(context,
+                  MaterialPageRoute(builder: (context) => const SettingsTab()));
+            },
+          ),
+        ],
       ),
     );
   }
