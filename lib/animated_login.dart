@@ -32,9 +32,9 @@ class AnimatedLogin extends StatefulWidget {
     this.formKey,
     this.checkError = true,
     @Deprecated('Instead prefer to use componentOrder to not show some parts.')
-        this.showForgotPassword = true,
+    this.showForgotPassword = true,
     @Deprecated('Instead prefer to use componentOrder to not show some parts.')
-        this.showChangeActionTitle = true,
+    this.showChangeActionTitle = true,
     this.showPasswordVisibility = true,
     this.nameValidator,
     this.emailValidator,

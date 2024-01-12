@@ -217,16 +217,14 @@ class LoginTexts extends ChangeNotifier {
   String get checkboxError => _checkboxError ?? _defaultCheckboxError;
 
   static const String _defaultWelcome = 'Welcome!';
-  static const String _defaultWelcomeDescription =
-      'You are where you find the best you are looking for!';
+  static const String _defaultWelcomeDescription = 'Get Connected Today!';
   static const String _defaultSignUp = 'Sign Up';
   static const String _defaultSignUpFormTitle = 'Create an Account';
-  static const String _defaultSignUpUseEmail =
-      'or use your email for registration:';
-  static const String _defaultNotHaveAnAccount = 'Not have an account?';
+  static const String _defaultSignUpUseEmail = 'or use your email:';
+  static const String _defaultNotHaveAnAccount = 'Dont have an account?';
   static const String _defaultWelcomeBack = 'Welcome Back!';
   static const String _defaultWelcomeBackDescription =
-      "Welcome back to the best. We're always here, waiting for you!";
+      "Welcome back to uConnect. Connections are waiting for you!";
   static const String _defaultLogin = 'Login';
   static const String _defaultLoginFormTitle = 'Login to Account';
   static const String _defaultLoginUseEmail = 'or use your email account:';
@@ -248,11 +246,11 @@ class LoginTexts extends ChangeNotifier {
   static const String _defaultPrivacyPolicyText = 'Privacy Policy';
   static const String _defaultTermsConditionsText = 'Terms & Conditions';
   static const String _defaultPrivacyPolicyLink =
-      'https://github.com/bahricanyesil';
+      'https://github.com/alexandermckee';
   static const String _defaultTermsConditionsLink =
-      'https://github.com/bahricanyesil';
+      'https://github.com/alexandermckee';
   static const String _defaultCheckboxError =
-      '! Please agree to the Privacy Policy and Terms & Conditions !';
+      'Please agree to the Privacy Policy and Terms & Conditions.';
 
   final String? _welcome;
 
